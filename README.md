@@ -14,20 +14,20 @@ An automated daily monitor that converts public European gas and carbon market f
 ## Setup
 
 ### 1. Clone the repo
-```bash
+```powershell
 git clone https://github.com/anjelajose77-cmd/cobblestone-monitor.git
 cd cobblestone-monitor
 ```
 
 ### 2. Create virtual environment
-```bash
+```powershell
 python -m venv venv
 venv\Scripts\activate        
 source venv/bin/activate     
 ```
 
 ### 3. Install dependencies
-```bash
+```powershell
 pip install pandas yfinance requests matplotlib fpdf2 groq python-dotenv
 ```
 
@@ -43,7 +43,7 @@ NEWS_API_KEY=your_newsapi_key_here
 - **NewsAPI** (live headlines): Free at newsapi.org
 
 ### 5. Run
-```bash
+```powershell
 python main.py
 ```
 ## Output
