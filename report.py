@@ -5,7 +5,6 @@ import math
 
 OUTPUT_DIR = "output"
 
-# Cobblestone Energy brand colors
 CE_TEAL = (0, 168, 143)
 CE_DARK = (20, 30, 35)
 CE_MID = (40, 55, 60)
@@ -82,33 +81,33 @@ class TradingReport(FPDF):
 
 
 def metric_card(pdf, x, y, w, h, label, value, unit, ok):
-    # Shadow
+    
     pdf.set_fill_color(210, 225, 220)
     pdf.rect(x + 1, y + 1, w, h, "F")
-    # Card
+    
     pdf.set_fill_color(*CE_LIGHT)
     pdf.set_draw_color(*CE_TEAL)
     pdf.rect(x, y, w, h, "FD")
-    # Top bar
+    
     r, g, b = CE_TEAL if ok else (200, 80, 50)
     pdf.set_fill_color(r, g, b)
     pdf.rect(x, y, w, 2.5, "F")
-    # Label
+    
     pdf.set_font("Helvetica", "B", 6)
     pdf.set_text_color(*CE_GREY)
     pdf.set_xy(x + 1, y + 3)
     pdf.cell(w - 2, 4, clean(label), align="C")
-    # Value
+    
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(*CE_DARK)
     pdf.set_xy(x + 1, y + 8)
     pdf.cell(w - 2, 7, clean(value), align="C")
-    # Unit
+    
     pdf.set_font("Helvetica", "", 6)
     pdf.set_text_color(*CE_GREY)
     pdf.set_xy(x + 1, y + 16)
     pdf.cell(w - 2, 4, clean(unit), align="C")
-    # Status dot
+    
     dot_r, dot_g, dot_b = CE_TEAL if ok else (200, 80, 50)
     pdf.set_fill_color(dot_r, dot_g, dot_b)
     pdf.circle(x + w - 3, y + 3.5, 1.2, "F")
@@ -121,7 +120,7 @@ def generate_report(metrics, brief, chart1_path, chart2_path):
     pdf.set_auto_page_break(auto=True, margin=22)
     pdf.add_page()
 
-    # --- TITLE ---
+    
     pdf.set_font("Helvetica", "B", 18)
     pdf.set_text_color(*CE_DARK)
     pdf.cell(0, 10, "Cross-Commodity Risk Pack", ln=True)
@@ -131,7 +130,7 @@ def generate_report(metrics, brief, chart1_path, chart2_path):
     pdf.ln(2)
     pdf.teal_divider()
 
-    # --- METRIC CARDS (single row of 6) ---
+    
     pdf.section_title("Today's Monitor Metrics")
     card_w = 30
     card_h = 22
@@ -150,7 +149,7 @@ def generate_report(metrics, brief, chart1_path, chart2_path):
     pdf.set_y(start_y + card_h + 5)
     pdf.teal_divider()
 
-    # --- AI BRIEF ---
+    
     pdf.section_title("AI-Generated Trading Brief")
     pdf.set_fill_color(*CE_LIGHT)
     pdf.set_draw_color(*CE_TEAL)

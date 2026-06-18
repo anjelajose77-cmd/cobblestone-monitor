@@ -9,11 +9,11 @@ def run_monitor():
     print("  COBBLESTONE ENERGY - EUROPEAN CROSS-COMMODITY MONITOR")
     print(f"  {date.today().strftime('%A, %d %B %Y')}")
     print("=" * 55)
-    print("\n[1/3] PULLING MARKET DATA...")
+    print("\n PULLING MARKET DATA...")
     metrics = get_all_metrics()
-    print("\n[2/3] GENERATING CHARTS...")
+    print("\n GENERATING CHARTS...")
     chart1, chart2 = generate_all_charts(metrics)
-    print("\n[3/3] GENERATING AI TRADING BRIEF...")
+    print("\n GENERATING AI TRADING BRIEF...")
     brief = generate_brief(metrics)
     print("\n" + "=" * 55)
     print("  TODAY'S TRADING BRIEF")
@@ -27,10 +27,10 @@ def run_monitor():
     print("  LLM Log : output/llm_log.json")
     print("=" * 55)
 
-    print("\n[4/4] GENERATING PDF Report...")
+    print("\n GENERATING PDF Report...")
     pdf_path = generate_report(metrics, brief, chart1, chart2)
     print(f" PDF saved:{pdf_path}")
-    print("\nMonitor complete. Have a good trading day.")
+    print("\nMonitor complete.")
 
 if __name__ == "__main__":
     run_monitor()
