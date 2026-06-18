@@ -116,12 +116,6 @@ Be direct, quantitative, and decision-useful. Write like a trader, not an academ
 
 
 if __name__ == "__main__":
-    dummy = [
-        {"metric": "TTF Front-Month",    "value": 41.46,  "unit": "EUR/MWh"},
-        {"metric": "EU Gas Storage Fill", "value": 45.3,   "unit": "%"},
-        {"metric": "EU ETS Carbon (EUA)", "value": 75.43,  "unit": "EUR/tonne"},
-        {"metric": "Clean Spark Spread",  "value": 16.02,  "unit": "EUR/MWh"},
-        {"metric": "German Power DA",     "value": 117.63, "unit": "EUR/MWh"},
-        {"metric": "EU LNG Send-Out",     "value": 3514.6, "unit": "GWh/day"},
-    ]
-    generate_brief(dummy)
+    from data_ingestion import get_all_metrics
+    metrics = get_all_metrics()
+    generate_brief(metrics)
