@@ -23,7 +23,7 @@ def run_monitor():
     print("  OUTPUT FILES")
     print("=" * 55)
     print("  Chart 1 : output/chart1_ttf_history.png")
-    print("  Chart 2 : output/chart2_storage_percentage.png")
+    print("  Chart 2 : output/chart2_storage_deficit.png")
     print("  LLM Log : output/llm_log.json")
     print("=" * 55)
 

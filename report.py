@@ -160,21 +160,18 @@ def generate_report(metrics, brief, chart1_path, chart2_path):
     pdf.ln(3)
     pdf.teal_divider()
 
-    # --- CHART 1 ---
     pdf.section_title("TTF Natural Gas - 3 Month Price History")
     if chart1_path and os.path.exists(chart1_path):
         pdf.image(chart1_path, x=12, w=186)
     pdf.ln(3)
     pdf.teal_divider()
 
-    # --- CHART 2 (same page if space, else new page) ---
     pdf.section_title("EU Gas Storage: 2026 vs 2025")
     if chart2_path and os.path.exists(chart2_path):
         pdf.image(chart2_path, x=12, w=186)
     pdf.ln(3)
     pdf.teal_divider()
 
-    # --- METHODOLOGY ---
     pdf.section_title("Data Sources & Methodology")
     pdf.set_font("Helvetica", "", 8.5)
     sources = [
@@ -198,7 +195,6 @@ def generate_report(metrics, brief, chart1_path, chart2_path):
         pdf.cell(141, 6, clean(source), fill=True, border="B", ln=True)
         fill = not fill
 
-    # --- SAVE ---
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     filename = f"output/cobblestone_monitor_{date.today().strftime('%Y%m%d')}.pdf"
     pdf.output(filename)
