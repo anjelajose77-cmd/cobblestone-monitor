@@ -4,7 +4,6 @@ from data_ingestion import get_all_metrics
 from charts import generate_all_charts
 from llm_brief import generate_brief
 from report import generate_report
-
 def run_monitor():
     print("=" * 55)
     print("  COBBLESTONE ENERGY - EUROPEAN CROSS-COMMODITY MONITOR")
@@ -24,7 +23,7 @@ def run_monitor():
     print("  OUTPUT FILES")
     print("=" * 55)
     print("  Chart 1 : output/chart1_ttf_history.png")
-    print("  Chart 2 : output/chart2_dashboard.png")
+    print("  Chart 2 : output/chart2_storage_percentage.png")
     print("  LLM Log : output/llm_log.json")
     print("=" * 55)
 

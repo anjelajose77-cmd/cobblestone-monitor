@@ -87,11 +87,11 @@ def get_all_metrics():
     carbon_data=get_carbon_price()
     power_data=get_german_power()
     storage_data=get_gas_storage()
-
-    ttf_val=ttf_data["value"] or 41.5
-    carbon_val=carbon_data["value"] or 75.0
-    power_val=power_data["value"] or 90.0
-
+    
+    import math
+    ttf_val = ttf_data["value"] if ttf_data["value"] and not math.isnan(float(ttf_data["value"])) else 41.5
+    carbon_val = carbon_data["value"] if carbon_data["value"] and not math.isnan(float(carbon_data["value"])) else 75.0
+    power_val = power_data["value"] if power_data["value"] and not math.isnan(float(power_data["value"])) else 90.0
     spark_data=get_clean_spark_spread(ttf_val,carbon_val,power_val)
     lng_data = get_lng_sendout()
     
