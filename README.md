@@ -39,7 +39,7 @@ NEWS_API_KEY=your_newsapi_key_here
 
 **Where to get free API keys:**
 - **GIE** (gas storage + LNG data): Register at agsi.gie.eu — select "Both ALSI and AGSI+" when registering
-- **Groq** (LLM): Free at console.groq.com — no credit card needed
+- **Groq** (LLM): Free at console.groq.com — no need to buy credits
 - **NewsAPI** (live headlines): Free at newsapi.org
 
 ### 5. Run
