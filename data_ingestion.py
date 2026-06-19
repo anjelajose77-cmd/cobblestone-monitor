@@ -47,9 +47,9 @@ def get_gas_storage():
     try:
         api_key = os.getenv("GIE_API_KEY")
         url = "https://agsi.gie.eu/api"
-        params = {"country": "eu", "size": 1, "date": str(date.today())}
+        params = {"country": "eu", "size": 1, "date": str(date.today()-timedelta(days=1))}
         headers = {"x-key": api_key}
-        r = requests.get(url, params=params, headers=headers, timeout=10)
+        r = requests.get(url, params=params, headers=headers, timeout=15)
         data = r.json()
         fill = round(float(data["data"][0]["full"]), 2)
         return {"metric": "EU Gas Storage Fill", "value": fill, "unit": "%", "status": "ok"}
@@ -80,7 +80,7 @@ def get_lng_sendout():
             for gas_date in dates_to_try:
                 url = "https://alsi.gie.eu/api"
                 params = {"country": country, "size": 1, "date": gas_date}
-                r = requests.get(url, params=params, headers=headers, timeout=10)
+                r = requests.get(url, params=params, headers=headers, timeout=15)
                 data = r.json()
                 print(f"  Trying country={country} date={gas_date}: total={data.get('total')}")
                 if data.get("data"):

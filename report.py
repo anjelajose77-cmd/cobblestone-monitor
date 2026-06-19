@@ -63,7 +63,7 @@ class TradingReport(FPDF):
         self.set_y(-11)
         self.set_font("Helvetica", "I", 8)
         self.set_text_color(*CE_ACCENT)
-        self.cell(0, 8, f"Automated Daily Monitor  |  Anjela Jose  |  Page {self.page_no()}", align="C")
+        self.cell(0, 8, f"Automated Daily Monitor  |  Anjela Jose  | anjelajose22@gmail.com |  Page {self.page_no()}", align="C")
 
     def section_title(self, title):
         self.set_fill_color(*CE_TEAL)
@@ -172,13 +172,51 @@ def generate_report(metrics, brief, chart1_path, chart2_path):
     pdf.ln(3)
     pdf.teal_divider()
 
-    pdf.section_title("Data Sources & Methodology")
+# --- METRIC RATIONALE ---
+    pdf.section_title("Metric Rationale & Methodology")
+    pdf.set_font("Helvetica", "", 8.5)
+    pdf.set_text_color(*CE_DARK)
+
+    rationale = [
+        ("TTF Front-Month (EUR/MWh)",
+         "The European gas benchmark. Gas-fired power plants set the marginal price of electricity across most hours in Europe. TTF is the primary input cost for these plants - every move in TTF flows directly into power curve pricing."),
+        ("EU Gas Storage Fill (%)",
+         "The physical tightness signal. Storage fill vs the same date last year tells you how much winter supply buffer Europe has. Currently 8.7pp below 2025 levels, which means the market is more exposed to a cold snap or LNG supply disruption than the current TTF price implies."),
+        ("EU ETS Carbon / EUA (EUR/tonne)",
+         "The carbon cost overlay. Each MWh of gas-fired generation emits ~0.202 tonnes of CO2, each requiring an EU Allowance. At EUR 75/t, carbon adds ~EUR 15/MWh on top of the gas cost. ETS reform in 2026 and CBAM implementation are structural tailwinds for EUA prices."),
+        ("Clean Spark Spread (EUR/MWh)",
+         "DERIVED METRIC - Formula: German Power DA - (TTF x 7.5/3.6) - (EUA x 0.202). Here 7.5 is the heat rate in GJ/MWh (energy input per MWh of electricity), divided by 3.6 to convert GJ to MWh, giving ~2.08 MWh of gas per MWh of power (equivalent to ~48% CCGT efficiency). 0.202 is the CO2 emission factor in t/MWh.Positive spread = gas plants profitable and dispatching. Negative = gas pushed out of merit order."),
+        ("German Power DA (EUR/MWh)",
+         "The spot power benchmark. Clears after all generation sources have bid in. The gap between DA and the forward curve (Cal-27 ~EUR 93/MWh) signals the market's structural view on tightness. A persistently high DA vs forward suggests the market expects current tightness to ease over time."),
+        ("EU LNG Send-Out (GWh/day)",
+         "The flow signal. Europe is structurally dependent on LNG imports since 2022. Daily send-out from receiving terminals is the fastest supply signal available - a drop here due to geopolitical disruption or Asian demand competition translates to TTF upward pressure within days."),
+    ]
+
+    fill = False
+    for metric, explanation in rationale:
+        pdf.set_fill_color(*(CE_LIGHT if fill else CE_WHITE))
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "B", 8.5)
+        pdf.set_text_color(*CE_TEAL)
+        pdf.cell(0, 6, clean(metric), fill=True, ln=True)
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "", 8.5)
+        pdf.set_text_color(*CE_DARK)
+        pdf.multi_cell(186, 5, clean(explanation), fill=True)
+        pdf.ln(1)
+        fill = not fill
+
+    pdf.ln(3)
+    pdf.teal_divider()
+
+    # --- DATA SOURCES ---
+    pdf.section_title("Data Sources")
     pdf.set_font("Helvetica", "", 8.5)
     sources = [
         ("TTF Front-Month",     "Yahoo Finance (TTF=F) via yfinance"),
-        ("EU Gas Storage Fill", "GIE AGSI+ API (agsi.gie.eu)"),
+        ("EU Gas Storage Fill", "GIE AGSI+ API (agsi.gie.eu) - T-1 lag"),
         ("EU ETS Carbon (EUA)", "Yahoo Finance (CO2.L) via yfinance"),
-        ("Clean Spark Spread",  "Derived : German Power DA - (TTF x 7.5/3.6) - (EUA x 0.202)"),
+        ("Clean Spark Spread",  "Derived - see formula above"),
         ("German Power DA",     "Energy-Charts API (api.energy-charts.info)"),
         ("EU LNG Send-Out",     "GIE ALSI+ API (alsi.gie.eu)"),
         ("Trading Brief",       "LLM-generated via Groq API (llama-3.3-70b-versatile)"),
@@ -187,12 +225,12 @@ def generate_report(metrics, brief, chart1_path, chart2_path):
     for label, source in sources:
         pdf.set_fill_color(*(CE_LIGHT if fill else CE_WHITE))
         pdf.set_x(12)
-        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_font("Helvetica", "B", 8.5)
         pdf.set_text_color(*CE_TEAL)
-        pdf.cell(45, 6, clean(label), fill=True, border="B")
-        pdf.set_font("Helvetica", "", 8)
+        pdf.cell(50, 6, clean(label), fill=True, border="B")
+        pdf.set_font("Helvetica", "", 8.5)
         pdf.set_text_color(*CE_DARK)
-        pdf.cell(141, 6, clean(source), fill=True, border="B", ln=True)
+        pdf.cell(136, 6, clean(source), fill=True, border="B", ln=True)
         fill = not fill
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
