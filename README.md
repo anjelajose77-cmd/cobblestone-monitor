@@ -58,7 +58,7 @@ All files saved to `output/` folder:
 | Metric | Source | Why It Matters |
 |---|---|---|
 | TTF Front-Month | Yahoo Finance | European gas benchmark — sets marginal cost of gas-fired power |
-| EU Gas Storage Fill | GIE AGSI+ API | Physical tightness proxy — currently 8.7pp below 2025 |
+| EU Gas Storage Fill | GIE AGSI+ API | Physical tightness proxy — currently below 2025 levels |
 | EU ETS Carbon (EUA) | Yahoo Finance | Carbon cost per MWh — structurally supported by 2026 ETS reform |
 | Clean Spark Spread | Derived | Gas plant profitability — positive = gas units dispatched |
 | German Power DA | Energy-Charts API | Spot power benchmark — daily reality check vs forward positions |
