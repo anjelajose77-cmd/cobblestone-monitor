@@ -104,7 +104,7 @@ Assess EUA at {eua} EUR/t and what it adds to generation cost (use 0.202 t/MWh e
 PARAGRAPH 3 - KEY RISK & TRADE IDEA:
 Name one specific risk to watch today with a directional implication (e.g. if X happens, TTF moves Y).
 
-Be direct, quantitative, and decision-useful. Write like a trader, not an academic."""
+Be direct, quantitative, and decision-useful. Do not invent causal relationships between metrics that are not directly linked. Write like a trader, not an academic."""
 
     print("Generating trading brief...")
     print(f"\n--- PROMPT SENT TO LLM ---\n{prompt}\n--------------------------\n")
