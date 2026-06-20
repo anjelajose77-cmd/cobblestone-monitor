@@ -10,9 +10,11 @@ from datetime import date, timedelta
 
 
 def get_ttf_price():
+    """Metric 1: TTF front-month gas price"""
     try:
         ttf = yf.Ticker("TTF=F")
-        hist = ttf.history(period="2d")
+        hist = ttf.history(period="5d")
+        hist = hist.dropna(subset=["Close"])
         price = round(hist["Close"].iloc[-1], 2)
         return {"metric": "TTF Front-Month", "value": price, "unit": "EUR/MWh", "status": "ok"}
     except Exception as e:
@@ -20,9 +22,11 @@ def get_ttf_price():
 
 
 def get_carbon_price():
+    """Metric 3: EU ETS carbon price via Yahoo Finance - uses 5d to handle weekends"""
     try:
         eua = yf.Ticker("CO2.L")
-        hist = eua.history(period="2d")
+        hist = eua.history(period="5d")
+        hist = hist.dropna(subset=["Close"])
         price = round(hist["Close"].iloc[-1], 2)
         return {"metric": "EU ETS Carbon (EUA)", "value": price, "unit": "EUR/tonne", "status": "ok"}
     except Exception as e:
@@ -30,6 +34,7 @@ def get_carbon_price():
 
 
 def get_german_power():
+    """Metric 5: German day-ahead power via Energy-Charts API"""
     try:
         today = str(date.today())
         url = "https://api.energy-charts.info/price"
@@ -37,6 +42,8 @@ def get_german_power():
         r = requests.get(url, params=params, timeout=10)
         data = r.json()
         prices = [p for p in data["price"] if p is not None]
+        if not prices:
+            raise ValueError("No price data returned")
         avg_price = round(sum(prices) / len(prices), 2)
         return {"metric": "German Power DA", "value": avg_price, "unit": "EUR/MWh", "status": "ok"}
     except Exception as e:
@@ -44,10 +51,11 @@ def get_german_power():
 
 
 def get_gas_storage():
+    """Metric 2: EU gas storage fill % via GIE AGSI API"""
     try:
         api_key = os.getenv("GIE_API_KEY")
         url = "https://agsi.gie.eu/api"
-        params = {"country": "eu", "size": 1, "date": str(date.today()-timedelta(days=1))}
+        params = {"country": "eu", "size": 1, "date": str(date.today() - timedelta(days=1))}
         headers = {"x-key": api_key}
         r = requests.get(url, params=params, headers=headers, timeout=15)
         data = r.json()
@@ -58,6 +66,7 @@ def get_gas_storage():
 
 
 def get_clean_spark_spread(ttf, carbon, power):
+    """Metric 4: Clean spark spread (derived)"""
     try:
         heat_rate = 7.5
         emission_factor = 0.202
@@ -70,6 +79,7 @@ def get_clean_spark_spread(ttf, carbon, power):
 
 
 def get_lng_sendout():
+    """Metric 6: EU LNG send-out (GWh/day) via GIE ALSI API"""
     try:
         api_key = os.getenv("GIE_API_KEY")
         headers = {"x-key": api_key}

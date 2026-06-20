@@ -12,7 +12,7 @@ def run_monitor():
     print("\n PULLING MARKET DATA...")
     metrics = get_all_metrics()
     print("\n GENERATING CHARTS...")
-    chart1, chart2 = generate_all_charts(metrics)
+    chart1, chart2, chart3 = generate_all_charts(metrics)
     print("\n GENERATING AI TRADING BRIEF...")
     brief = generate_brief(metrics)
     print("\n" + "=" * 55)
@@ -24,11 +24,12 @@ def run_monitor():
     print("=" * 55)
     print("  Chart 1 : output/chart1_ttf_history.png")
     print("  Chart 2 : output/chart2_storage_deficit.png")
+    print("  Chart 3 : output/chart3_spark_spread.png")
     print("  LLM Log : output/llm_log.json")
     print("=" * 55)
 
     print("\n GENERATING PDF Report...")
-    pdf_path = generate_report(metrics, brief, chart1, chart2)
+    pdf_path = generate_report(metrics, brief, chart1, chart2, chart3)
     print(f" PDF saved:{pdf_path}")
     print("\nMonitor complete.")
 
