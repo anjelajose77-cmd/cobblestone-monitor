@@ -74,15 +74,13 @@ def chart_storage_vs_lastyear(metrics=None):
         api_key = os.getenv("GIE_API_KEY")
         headers = {"x-key": api_key}
 
-        dates_this_year = []
-        fills_this_year = []
-        dates_last_year = []
-        fills_last_year = []
+        storage_this_year = {} 
+        today = date.today()
 
-        today = date.today() - timedelta(days=2)
 
+        base = today - timedelta(days=2)
         for weeks_ago in range(26, 0, -1):
-            d = today - timedelta(weeks=weeks_ago)
+            d = base - timedelta(weeks=weeks_ago)
             try:
                 r = requests.get(
                     "https://agsi.gie.eu/api",
@@ -91,14 +89,36 @@ def chart_storage_vs_lastyear(metrics=None):
                 )
                 data = r.json()
                 if data.get("data"):
-                    fill = float(data["data"][0]["full"])
-                    dates_this_year.append(d)
-                    fills_this_year.append(fill)
+                    storage_this_year[d] = float(data["data"][0]["full"])
             except:
                 pass
 
+
+        for days_ago in range(7, 0, -1):
+            d = today - timedelta(days=days_ago)
+            if d not in storage_this_year:
+                try:
+                    r = requests.get(
+                        "https://agsi.gie.eu/api",
+                        params={"country": "eu", "size": 1, "date": str(d)},
+                        headers=headers, timeout=8
+                    )
+                    data = r.json()
+                    if data.get("data"):
+                        storage_this_year[d] = float(data["data"][0]["full"])
+                except:
+                    pass
+
+        
+        combined = sorted(storage_this_year.items())
+        dates_this_year = [x[0] for x in combined]
+        fills_this_year = [x[1] for x in combined]
+
         print(f"  Data points this year: {len(fills_this_year)}")
 
+        
+        dates_last_year = []
+        fills_last_year = []
         for d in dates_this_year:
             d_ly = d - timedelta(days=365)
             try:
@@ -119,7 +139,7 @@ def chart_storage_vs_lastyear(metrics=None):
 
         if not fills_this_year or not fills_last_year:
             print("  No data returned - check GIE_API_KEY in .env")
-            return None
+            return None, None
 
         BG = "#0a0e1a"
         COL_2026 = "#00d4aa"
@@ -131,6 +151,7 @@ def chart_storage_vs_lastyear(metrics=None):
         ax.set_facecolor(BG)
 
         min_len = min(len(fills_this_year), len(fills_last_year))
+
         current_deficit = round(fills_last_year[min_len - 1] - fills_this_year[min_len - 1], 1)
 
         if metrics:
@@ -184,11 +205,11 @@ def chart_storage_vs_lastyear(metrics=None):
         plt.savefig(path, dpi=150, facecolor="#0d1117")
         plt.close()
         print(f"  Saved: {path}")
-        return path
+        return path, current_deficit
 
     except Exception as e:
         print(f"  Chart 2 error: {e}")
-        return None
+        return None, None
 
 
 def chart_spark_spread(metrics=None):
@@ -217,7 +238,6 @@ def chart_spark_spread(metrics=None):
         carbon_cost = eua_prices * emission_factor
         total_cost = gas_cost + carbon_cost
 
-        # Bulk API call for historical DA data - completed days only
         today_ts = pd.Timestamp(date.today()).normalize()
         start_date = common_dates[0].strftime("%Y-%m-%d")
         end_date = common_dates[-1].strftime("%Y-%m-%d")
@@ -228,8 +248,6 @@ def chart_spark_spread(metrics=None):
         )
         price_data = r.json()
 
-        # Group by day and average - exclude today from bulk pull
-        # (today's average comes from dashboard metrics instead, ensuring consistency)
         daily_prices = defaultdict(list)
         for ts, p in zip(price_data.get("unix_seconds", []), price_data.get("price", [])):
             if p is not None:
@@ -243,7 +261,6 @@ def chart_spark_spread(metrics=None):
             for d, prices in daily_prices.items()
         }).sort_index()
 
-        # Append today's DA from dashboard metrics - same avg method as get_german_power()
         if metrics:
             m_dict = {m["metric"]: m["value"] for m in metrics}
             live_da = m_dict.get("German Power DA")
@@ -251,14 +268,13 @@ def chart_spark_spread(metrics=None):
                 da_series[today_ts] = float(live_da)
                 da_series = da_series.sort_index()
 
-        # Align all series
         all_common = total_cost.index.intersection(da_series.index)
         gas_aligned = gas_cost.loc[all_common]
         carbon_aligned = carbon_cost.loc[all_common]
         total_aligned = total_cost.loc[all_common]
         da_aligned = da_series.loc[all_common]
 
-        # If today's TTF/EUA not in yfinance yet, extend using dashboard metrics
+
         if metrics and today_ts not in all_common:
             m_dict = {m["metric"]: m["value"] for m in metrics}
             live_ttf = m_dict.get("TTF Front-Month")
@@ -292,7 +308,6 @@ def chart_spark_spread(metrics=None):
                 color="white", linewidth=1.5, linestyle="--",
                 label="Total generation cost", zorder=3)
 
-        # Info box - all values from dashboard metrics directly
         if metrics:
             m_dict = {m["metric"]: m["value"] for m in metrics}
             ttf_raw = m_dict.get("TTF Front-Month")
@@ -308,7 +323,6 @@ def chart_spark_spread(metrics=None):
             c = round(eua_v * 0.202, 1)
             t = round(g + c, 1)
 
-            # Spark spread pulled directly from dashboard - matches tile exactly
             s = round(float(spark_raw), 1) if spark_raw is not None else round(pwr_v - t, 1)
             sign = "+" if s > 0 else ""
 
@@ -381,9 +395,9 @@ def chart_spark_spread(metrics=None):
 def generate_all_charts(metrics):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     chart1 = chart_ttf_history()
-    chart2 = chart_storage_vs_lastyear(metrics)
+    chart2, storage_deficit = chart_storage_vs_lastyear(metrics)  
     chart3 = chart_spark_spread(metrics)
-    return chart1, chart2, chart3
+    return chart1, chart2, chart3, storage_deficit  
 
 
 if __name__ == "__main__":

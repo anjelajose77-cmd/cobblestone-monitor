@@ -113,14 +113,29 @@ def metric_card(pdf, x, y, w, h, label, value, unit, ok):
     pdf.circle(x + w - 3, y + 3.5, 1.2, "F")
 
 
-def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
+def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None, storage_deficit=None):
     print("Generating PDF report...")
+
+    
+    if storage_deficit is not None:
+        deficit_str = f"{storage_deficit}pp"
+    else:
+        deficit_str = "N/A pp"
+
+    
+    m_dict = {m["metric"]: m["value"] for m in metrics}
+    eua_val = m_dict.get("EU ETS Carbon (EUA)")
+    try:
+        eua_carbon_cost = round(float(eua_val) * 0.202, 0)
+        eua_display = f"At EUR {float(eua_val):.0f}/t, carbon adds ~EUR {eua_carbon_cost:.0f}/MWh on top of the gas cost."
+    except (TypeError, ValueError):
+        eua_display = "At EUR 75/t, carbon adds ~EUR 15/MWh on top of the gas cost."
 
     pdf = TradingReport()
     pdf.set_auto_page_break(auto=True, margin=22)
     pdf.add_page()
 
-
+   
     pdf.set_font("Helvetica", "B", 18)
     pdf.set_text_color(*CE_DARK)
     pdf.cell(0, 10, "Cross-Commodity Risk Pack", ln=True)
@@ -130,6 +145,7 @@ def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
     pdf.ln(2)
     pdf.teal_divider()
 
+    
     pdf.section_title("Today's Monitor Metrics")
     card_w = 30
     card_h = 22
@@ -148,7 +164,7 @@ def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
     pdf.set_y(start_y + card_h + 5)
     pdf.teal_divider()
 
-    # --- AI BRIEF ---
+
     pdf.section_title("AI-Generated Trading Brief")
     pdf.set_fill_color(*CE_LIGHT)
     pdf.set_draw_color(*CE_TEAL)
@@ -159,16 +175,18 @@ def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
     pdf.ln(3)
     pdf.teal_divider()
 
+
     pdf.section_title("TTF Natural Gas - 3 Month Price History")
     if chart1_path and os.path.exists(chart1_path):
         pdf.image(chart1_path, x=12, w=186)
-    pdf.caption("TTF front-month is the marginal fuel cost signal for European power. Gas-fired plants set the clearing price across most hours of the day — a move in TTF flows directly and immediately into day-ahead and forward power prices. Traders use this chart to assess whether recent gas price moves represent a structural shift or a short-term sentiment trade.")
+    pdf.caption("TTF front-month is the marginal fuel cost signal for European power. Gas-fired plants set the clearing price across most hours of the day - a move in TTF flows directly and immediately into day-ahead and forward power prices. Traders use this chart to assess whether recent gas price moves represent a structural shift or a short-term sentiment trade.")
     pdf.teal_divider()
+
 
     pdf.section_title("EU Gas Storage: 2026 vs 2025 - Injection Season Deficit")
     if chart2_path and os.path.exists(chart2_path):
         pdf.image(chart2_path, x=12, w=186)
-    pdf.caption("Storage fill rate versus the prior year is the key physical tightness indicator for the power curve. A deficit vs last year means less buffer against winter demand spikes — this tightens the supply/demand balance and supports higher forward power prices. Traders watch the year-on-year gap to assess whether current TTF levels are justified by fundamentals or driven by sentiment.")
+    pdf.caption("Storage fill rate versus the prior year is the key physical tightness indicator for the power curve. A deficit vs last year means less buffer against winter demand spikes - this tightens the supply/demand balance and supports higher forward power prices. Traders watch the year-on-year gap to assess whether current TTF levels are justified by fundamentals or driven by sentiment.")
     pdf.set_font("Helvetica", "I", 7)
     pdf.set_text_color(*CE_GREY)
     pdf.set_x(12)
@@ -176,7 +194,7 @@ def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
     pdf.ln(3)
     pdf.teal_divider()
 
-    
+
     pdf.section_title("Gas-Fired Power: Generation Cost vs German DA Price")
     if chart3_path and os.path.exists(chart3_path):
         pdf.image(chart3_path, x=12, w=186)
@@ -185,7 +203,7 @@ def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
         pdf.set_text_color(*CE_GREY)
         pdf.set_x(12)
         pdf.cell(0, 10, "Chart unavailable - API timeout. Re-run to regenerate.", ln=True)
-    pdf.caption("This chart shows the economics of gas-fired generation — the core driver of European power prices. The stacked areas represent total generation cost (gas + carbon); the red line is the actual clearing price (German DA). When DA exceeds total cost, the spark spread is positive and gas plants dispatch. When it falls below, gas is pushed out of the merit order. Traders use this to assess power curve risk: a persistently positive spread supports higher forwards; a negative spread signals renewable oversupply or demand weakness.")
+    pdf.caption("This chart shows the economics of gas-fired generation - the core driver of European power prices. The stacked areas represent total generation cost (gas + carbon); the red line is the actual clearing price (German DA). When DA exceeds total cost, the spark spread is positive and gas plants dispatch. When it falls below, gas is pushed out of the merit order. Traders use this to assess power curve risk: a persistently positive spread supports higher forwards; a negative spread signals renewable oversupply or demand weakness.")
     pdf.teal_divider()
 
     pdf.section_title("Metric Rationale & Methodology")
@@ -193,9 +211,9 @@ def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
         ("TTF Front-Month (EUR/MWh)",
          "The European gas benchmark. Gas-fired power plants set the marginal price of electricity across most hours in Europe. TTF is the primary input cost - every move flows directly into power curve pricing."),
         ("EU Gas Storage Fill (%)",
-         "The physical tightness signal. Storage fill vs the same date last year shows how much winter supply buffer Europe has. Currently 8.7pp below 2025, meaning the market is more exposed to a cold snap or LNG disruption than the current TTF price implies."),
+         f"The physical tightness signal. Storage fill vs the same date last year shows how much winter supply buffer Europe has. Currently {deficit_str} below 2025, meaning the market is more exposed to a cold snap or LNG disruption than the current TTF price implies."),
         ("EU ETS Carbon / EUA (EUR/tonne)",
-         "The carbon cost overlay. Each MWh of gas-fired generation emits ~0.202 tonnes of CO2, each requiring an EU Allowance. At EUR 75/t, carbon adds ~EUR 15/MWh on top of the gas cost. ETS reform in 2026 and CBAM implementation are structural tailwinds for EUA prices."),
+         f"The carbon cost overlay. Each MWh of gas-fired generation emits ~0.202 tonnes of CO2, each requiring an EU Allowance. {eua_display} ETS reform in 2026 and CBAM implementation are structural tailwinds for EUA prices."),
         ("Clean Spark Spread (EUR/MWh)",
          "DERIVED METRIC - Formula: German Power DA - (TTF x 7.5/3.6) - (EUA x 0.202). Here 7.5 is the heat rate in GJ/MWh divided by 3.6 to convert to MWh, giving ~2.08 MWh gas per MWh power (~48% CCGT efficiency). 0.202 is the CO2 emission factor (t/MWh). Positive = gas plants profitable and dispatching. Negative = gas pushed out of merit order."),
         ("German Power DA (EUR/MWh)",
@@ -221,6 +239,7 @@ def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
     pdf.ln(3)
     pdf.teal_divider()
 
+
     pdf.section_title("Data Sources")
     sources = [
         ("TTF Front-Month",     "Yahoo Finance (TTF=F) via yfinance"),
@@ -244,7 +263,6 @@ def generate_report(metrics, brief, chart1_path, chart2_path, chart3_path=None):
         pdf.cell(136, 6, clean(source), fill=True, border="B", ln=True)
         fill = not fill
 
-
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     filename = f"output/cobblestone_monitor_{date.today().strftime('%Y%m%d')}.pdf"
     pdf.output(filename)
@@ -258,7 +276,7 @@ if __name__ == "__main__":
     from llm_brief import generate_brief
 
     metrics = get_all_metrics()
-    chart1, chart2, chart3 = generate_all_charts(metrics)
+    chart1, chart2, chart3, storage_deficit = generate_all_charts(metrics)
     brief = generate_brief(metrics)
-    generate_report(metrics, brief, chart1, chart2, chart3)
+    generate_report(metrics, brief, chart1, chart2, chart3, storage_deficit)
     print("Done!")
