@@ -9,7 +9,11 @@ An automated daily monitor that converts public European gas and carbon market f
 
 ## What It Does
 1. Pulls 6 live market metrics from public APIs
+<<<<<<< HEAD
 2. Generates 3 charts (TTF price history + EU storage deficit vs last year + Generation cost breakdown vs German DA power price)
+=======
+2. Generates 3 charts (TTF price history + EU storage deficit vs last year + Spark spread vs. German DA prices)
+>>>>>>> 4781e318df41d3496a664e1744c7e01fcf91c071
 3. Calls Groq LLM API to write a 150-200 word trading brief grounded in live data
 4. Outputs a 3-page branded PDF report
 
