@@ -2,14 +2,16 @@
 ### Cobblestone Energy — Case Study Submission
 **Anjela Jose** | anjelajose22@gmail.com
 
+**Full version with risk engine (VaR, stress testing, Excel reporting):** https://github.com/anjelajose77-cmd/european-energy-risk-monitor
+
 ## Overview
 An automated daily monitor that converts public European gas and carbon market fundamentals into a trading narrative for the power curve. Runs end-to-end with a single command, producing a branded PDF brief with live metrics, charts, and an AI-generated trading narrative.
 
 ## What It Does
 1. Pulls 6 live market metrics from public APIs
-2. Generates 2 charts (TTF price history + EU storage deficit vs last year)
+2. Generates 3 charts (TTF price history + EU storage deficit vs last year + Generation cost breakdown vs German DA power price)
 3. Calls Groq LLM API to write a 150-200 word trading brief grounded in live data
-4. Outputs a 2-page branded PDF report
+4. Outputs a 3-page branded PDF report
 
 ## Setup
 
